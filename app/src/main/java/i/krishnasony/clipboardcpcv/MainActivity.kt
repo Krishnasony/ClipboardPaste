@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -23,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         clipData?.let {
             if (checkDataValidation()){
                 pnrText.setText(clipData.toString())
+                this.showToast(message = "$it Pasted Successfully !")
             }
         }
     }
@@ -37,12 +39,10 @@ class MainActivity : AppCompatActivity() {
 
     private  fun checkClipboardValidation(clipboard: ClipboardManager):Boolean {
         return when {
-            !clipboard.hasPrimaryClip() -> { false
-            }
-            !(clipboard.primaryClipDescription.hasMimeType(MIMETYPE_TEXT_PLAIN)) -> {
+            !clipboard.hasPrimaryClip() -> {
                 false
             }
-            !(clipboard.primaryClipDescription.hasMimeType(MIMETYPE_TEXT_HTML)) -> {
+            (clipboard.primaryClipDescription?.mimeTypeCount) == 0 -> {
                 false
             }
             else -> {
@@ -55,14 +55,14 @@ class MainActivity : AppCompatActivity() {
         clipData?.let {
             if (it.isEmpty()){
                 validation = false
-                this.showToast("Clipboard is empty")
+                Log.e("Validation:","Clipboard is empty")
             }else if (!TextUtils.isDigitsOnly(it.toString().trim())){
                 validation = false
-                this.showToast("Clipboard doesn't contain only digit")
+                Log.e("Validation:","Clipboard doesn't contain only digit")
             }else if (TextUtils.getTrimmedLength(it)!=10){
                 validation = false
-                this.showToast("Clipboard doesn't contain 10 digit")
-            }
+                Log.e("Validation:","Clipboard doesn't contain 10 digit")
+            }else validation = true
         }
         return validation
     }
