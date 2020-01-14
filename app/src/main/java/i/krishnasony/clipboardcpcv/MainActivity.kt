@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-
+    private var clipData:CharSequence ?= null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -19,26 +19,52 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        paste.setOnClickListener {
-            pastePnrFromClipboard()
+        clipData = getClipBoardData()
+        clipData?.let {
+            if (checkDataValidation()){
+                pnrText.setText(clipData.toString())
+            }
         }
     }
 
 
-    private fun pastePnrFromClipboard(){
+    private fun getClipBoardData():CharSequence?{
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        if (clipboard.hasPrimaryClip() && clipboard.primaryClipDescription != null&&(clipboard.primaryClipDescription?.hasMimeType(MIMETYPE_TEXT_HTML)!! || clipboard.primaryClipDescription?.hasMimeType(MIMETYPE_TEXT_PLAIN)!!)){
-            val pasteData:CharSequence = clipboard.primaryClip!!.getItemAt(0).text
-            if (pasteData.isNotEmpty()&&TextUtils.getTrimmedLength(pasteData)==10&&TextUtils.isDigitsOnly(pasteData.toString().trim()))
-            {
-                pnrText.setText( pasteData.toString().trim())
-                this.showToast("$pasteData")
-            }else  this.showToast("Clipboard data is not contain digit or may be short length")
+        return if (checkClipboardValidation(clipboard)){
+            clipboard.primaryClip?.getItemAt(0)?.text
+        }else null
+    }
 
-        }else{
-            this.showToast("No data found in clipboard")
+    private  fun checkClipboardValidation(clipboard: ClipboardManager):Boolean {
+        return when {
+            !clipboard.hasPrimaryClip() -> { false
+            }
+            !(clipboard.primaryClipDescription.hasMimeType(MIMETYPE_TEXT_PLAIN)) -> {
+                false
+            }
+            !(clipboard.primaryClipDescription.hasMimeType(MIMETYPE_TEXT_HTML)) -> {
+                false
+            }
+            else -> {
+                true
+            }
         }
-
+    }
+    private fun checkDataValidation():Boolean{
+        var validation = true
+        clipData?.let {
+            if (it.isEmpty()){
+                validation = false
+                this.showToast("Clipboard is empty")
+            }else if (!TextUtils.isDigitsOnly(it.toString().trim())){
+                validation = false
+                this.showToast("Clipboard doesn't contain only digit")
+            }else if (TextUtils.getTrimmedLength(it)!=10){
+                validation = false
+                this.showToast("Clipboard doesn't contain 10 digit")
+            }
+        }
+        return validation
     }
 
     private fun Context.showToast(message:String){
