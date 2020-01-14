@@ -1,7 +1,5 @@
 package i.krishnasony.clipboardcpcv
 
-import android.content.ClipDescription.MIMETYPE_TEXT_HTML
-import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
@@ -10,6 +8,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
+
+/**
+ * checkClipboardValidation(clipboard: ClipboardManager) is used to check clipboard manager
+ * checkDataValidation():Boolean is used to validate clipboard clip data
+ *getClipBoardData() is used to get clipboard clipData
+ */
 
 class MainActivity : AppCompatActivity() {
     private var clipData:CharSequence ?= null
